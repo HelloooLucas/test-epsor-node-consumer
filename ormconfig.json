@@ -1,0 +1,7 @@
+{
+	"type": "mongodb",
+	"url": "mongodb+srv://admin:admin@maincluster.bkg1p.mongodb.net/epsor",
+	"useNewUrlParser": true,
+	"synchronize": true,
+	"entities": ["./src/models/*.ts"]
+}
