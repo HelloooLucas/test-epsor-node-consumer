@@ -1,8 +1,7 @@
-import { createConnection, Connection, getMongoManager } from 'typeorm';
+import { createConnection, Connection } from 'typeorm';
 import * as http from 'http';
-import * as Kafka from 'node-rdkafka';
 
-import Book from './models/Book';
+import { setupKafkaConsumer } from './utils';
 
 const main = async () => {
 	const connection: Connection = await createConnection();
@@ -12,31 +11,7 @@ const main = async () => {
 	await server.listen(5000);
 	console.log('🚀  Node Consumer server has started!');
 
-	var consumer = new Kafka.KafkaConsumer({
-		'group.id': 'epsor',
-		'metadata.broker.list': 'localhost:9092',
-	}, {});
-	consumer.connect();
-
-	consumer
-		.on('ready', function() {
-			consumer.subscribe(['quickstart-events']);
-			consumer.consume();
-		})
-		.on('data', async function(data) {
-			const bookData = data && data.value && JSON.parse(data.value.toString());
-
-			const manager = getMongoManager();
-
-			const book = new Book();
-			book.title = bookData.title;
-			book.author = bookData.author;
-			book.stock = bookData.stock;
-			await manager.save(book);
-
-			console.log('BOOK HAS BEEN SAVED TO MONGO');
-			console.log(book);
-		})
+	setupKafkaConsumer();
 }
 
 main();
